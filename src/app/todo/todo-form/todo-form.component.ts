@@ -13,52 +13,69 @@ import { TodoViewModel } from '../models/todo-view-model';
 })
 export class TodoFormComponent implements OnInit {
 
-  todoForm:FormGroup;
+  todoForm: FormGroup;
+  createMode: boolean = true;
+  todo: TodoViewModel;
+
   constructor(private formBuilder: FormBuilder,
     public activeModal: NgbActiveModal,
-    private todoService: TodoService) { }
+    private todoService: TodoService
+    ) { }
 
   ngOnInit() {
     this.todoForm = this.formBuilder.group({
       title:['', Validators.required],
       description: ['',Validators.required],
       done: false
-    })
+    });
+
+    if(!this.createMode){
+      this.loadTodo(this.todo)
+    }
   }
 
-  todos: TodoViewModel[] = [];
-  loadTodo() {
-    this.todoService.getTodos().subscribe(response => {
-      this.todos = [];
-      response.docs.forEach(value => {
-        const data = value.data();
-        const id = value.id;
-        const todo: TodoViewModel = {
-          id: id,
-          title: data.title,
-          description: data.descrption,
-          done: data.done,
-          lastModifiedDate: data.lastModifiedDate.toDate()
-        };
-        this.todos.push(todo);
-      });
-    });
+  loadTodo(todo) {
+    this.todoForm.patchValue(todo)
+  }
+
+  handleSuccesfulSaveTodo(response: DocumentReference, todo: Todo){
+    this.activeModal.dismiss({ todo: todo, id: response.id })
   }
 
   saveTodo() {
     if (this.todoForm.invalid) {
       return;
     }
+    if(this.createMode){
+      let todo: Todo = this.todoForm.value;
+      todo.lastModifiedDate = new Date();
+      todo.createdDate = new Date();
+      this.todoService.saveTodo(todo)
+      .then(response => this.handleSuccesfulSaveTodo(response,todo))
+      .catch(err => console.error(err));
+    } else {
     let todo: Todo = this.todoForm.value;
     todo.lastModifiedDate = new Date();
     todo.createdDate = new Date();
     this.todoService.saveTodo(todo)
     .then(response => this.handleSuccesfulSaveTodo(response, todo))
     .catch(err => console.error(err));
-
+    }
   }
 
-  handleSuccesfulSaveTodo(response: DocumentReference, todo: Todo){
-    this.activeModal.dismiss({ todo: todo, id: response.id })
+  handleSuccessfulSaveTodo(response: DocumentReference, todo: Todo){
+    this.activeModal.dismiss({
+      todo: todo,
+      id: response.id,
+      createMode: true
+    });
   }
+  handleSuccessfulEditTodo(todo: TodoViewModel){
+    this.activeModal.dismiss({
+      todo: todo,
+      id: todo.id,
+      createMode: false
+    });
+  }
+
 }
