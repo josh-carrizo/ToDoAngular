@@ -38,8 +38,12 @@ export class TodoFormComponent implements OnInit {
     this.todoForm.patchValue(todo)
   }
 
-  handleSuccesfulSaveTodo(response: DocumentReference, todo: Todo){
-    this.activeModal.dismiss({ todo: todo, id: response.id })
+  handleSuccessfulSaveTodo(response: DocumentReference, todo: Todo){
+    this.activeModal.dismiss({
+      todo: todo,
+      id: response.id,
+      createMode: true
+    });
   }
 
   saveTodo() {
@@ -51,25 +55,19 @@ export class TodoFormComponent implements OnInit {
       todo.lastModifiedDate = new Date();
       todo.createdDate = new Date();
       this.todoService.saveTodo(todo)
-      .then(response => this.handleSuccesfulSaveTodo(response,todo))
+      .then(response => this.handleSuccessfulSaveTodo(response,todo))
       .catch(err => console.error(err));
     } else {
-    let todo: Todo = this.todoForm.value;
-    todo.lastModifiedDate = new Date();
-    todo.createdDate = new Date();
-    this.todoService.saveTodo(todo)
-    .then(response => this.handleSuccesfulSaveTodo(response, todo))
-    .catch(err => console.error(err));
-    }
+        let todo: TodoViewModel = this.todoForm.value;
+        todo.id = this.todo.id;
+        todo.lastModifiedDate = new Date();
+        this.todoService.editTodo(todo)
+          .then(() => this.handleSuccessfulEditTodo(todo))
+          .catch(err => console.error(err));
+      }
   }
 
-  handleSuccessfulSaveTodo(response: DocumentReference, todo: Todo){
-    this.activeModal.dismiss({
-      todo: todo,
-      id: response.id,
-      createMode: true
-    });
-  }
+
   handleSuccessfulEditTodo(todo: TodoViewModel){
     this.activeModal.dismiss({
       todo: todo,
