@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "angular-988c0"
+  },
+  "targets": {
+    "angular-988c0": {
+      "hosting": {
+        "firstApp": [
+          "angular-988c0"
+        ]
+      }
+    }
   }
 }
