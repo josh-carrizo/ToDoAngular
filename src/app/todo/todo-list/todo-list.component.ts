@@ -58,11 +58,11 @@ export class TodoListComponent implements OnInit {
     }
   }
 
-  checkedDone(index: number){
-    const newDoneValue = !this.todos[index].done
-    this.todos[index].done = newDoneValue;
+  checkedDone(i: number){
+    const newDoneValue = !this.todos[i].done
+    this.todos[i].done = newDoneValue;
     const obj = { done: newDoneValue };
-    const id = this.todos[index].id 
+    const id = this.todos[i].id 
     this.todoService.editTodoPartial(id, obj);
   }
 
@@ -75,10 +75,10 @@ export class TodoListComponent implements OnInit {
     modal.componentInstance.todo = todo;
   }
 
-  handleDeleteClick(todoId: string, index: number){
+  handleDeleteClick(todoId: string, i: number){
     this.todoService.deleteTodo(todoId)
       .then(() => {
-        this.todos.splice(index, 1);
+        this.todos.splice(i, 1);
       })
       .catch(err => console.error(err));
   }
